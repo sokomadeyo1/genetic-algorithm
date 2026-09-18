@@ -13,16 +13,16 @@ func Create(n int) *WGraph {
 	/*
 	 * For our problem we'll choose a graph of the following form (denoted using
 	 * a matrix):
-	 * 0 1 2 3
+	 * 0 1 2 1
 	 * 1 0 1 2
 	 * 2 1 0 1
-	 * 3 2 1 0
+	 * 1 2 1 0
 	 */
 
 	data := make([]float64, n*n)
 	for i := range n {
 		for j := i; j < n; j++ {
-			data[i*n+j] = (float64)(j - i)
+			data[i*n+j] = (float64)(min(j-i, n-(j-i)))
 		}
 	}
 	return (*WGraph)(mat.NewSymDense(n, data))
