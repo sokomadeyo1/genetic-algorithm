@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"slices"
+	"sort"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -95,8 +96,16 @@ func Cost(solution Species, task *WGraph) float64 {
 	return cost
 }
 
-// Selects top n species
-func Selection(species []Species) []Species { return nil }
+// Selects top k species
+func Selection(task *WGraph, species []Species, remain int) []Species {
+	sort.Slice(
+		species,
+		func(i, j int) bool {
+			return Cost(species[i], task) < Cost(species[j], task)
+		},
+	)
+	return species[:min(len(species), remain)]
+}
 
 // Random swap
 func Mutation(species Species) Species { return nil }
