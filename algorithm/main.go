@@ -23,4 +23,10 @@ func main() {
 		}
 		fmt.Println()
 	}
+
+	path := genetic_algorithm.Produce(problem)
+	for i := range len(path) {
+		fmt.Printf("(%d, %d) ", path[i].Start, path[i].Finish)
+	}
+	fmt.Println()
 }
