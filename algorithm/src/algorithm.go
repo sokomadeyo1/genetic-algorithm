@@ -169,4 +169,22 @@ func Mutation(species Species) Species {
 }
 
 // Unite solutions and generate a new one on a resulting graph
-func Crossover(species []Species) Species { return nil }
+func Crossover(species []Species, task *WGraph) Species {
+	n, _ := task.Dims()
+	data := make([]float64, n*n)
+	for i := range n {
+		for j := i; j < n; j++ {
+			data[i*n+j] = math.Inf(1)
+		}
+	}
+	for i := range len(species) {
+		for j := range n {
+			k := species[i][j].Start
+			l := species[i][j].Finish
+			data[k*n+l] = task.At(k, l)
+			data[l*n+k] = task.At(k, l)
+		}
+	}
+	subtask := mat.NewSymDense(n, data)
+	return Produce(subtask)
+}
