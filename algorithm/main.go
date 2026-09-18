@@ -3,6 +3,8 @@ package main
 import (
 	"flag"
 	"fmt"
+
+	"github.com/sokomadeyo1/genetic-algorithm/src"
 )
 
 const DEFAULT_SIZE = 10
@@ -10,8 +12,15 @@ const DEFAULT_ITER = 10
 
 func main() {
 	var n_cities = flag.Int("n_cities", DEFAULT_SIZE, "number of cities in the TSP")
-	var n_iter = flag.Int("n_iter", DEFAULT_ITER, "number of algorithm iterations")
+	// var n_iter = flag.Int("n_iter", DEFAULT_ITER, "number of algorithm iterations")
 	flag.Parse()
 
-	fmt.Printf("%d %d", *n_cities, *n_iter)
+	problem := genetic_algorithm.Create(*n_cities)
+
+	for i := range *n_cities {
+		for j := range *n_cities {
+			fmt.Printf("%g ", problem.At(i, j))
+		}
+		fmt.Println()
+	}
 }
