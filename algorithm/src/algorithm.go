@@ -92,11 +92,14 @@ func Cost(solution Species, task *WGraph) float64 {
 	for i := range len(solution) {
 		cost += task.At(solution[i].Start, solution[i].Finish)
 	}
-
 	return cost
 }
 
-// Selects top k species
+func Fitness(solution Species, task *WGraph) float64 {
+	return math.Pow(Cost(solution, task), -1)
+}
+
+// Samples k species
 func Selection(task *WGraph, species []Species, remain int) []Species {
 	sort.Slice(
 		species,
