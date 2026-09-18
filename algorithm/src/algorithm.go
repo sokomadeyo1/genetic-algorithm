@@ -81,7 +81,15 @@ func producer(task *WGraph, acc Path) Species {
 	return nil
 }
 
-func Score(solution Species, task WGraph) int { return 0 }
+// Evaluate path's length/cost
+func Cost(solution Species, task *WGraph) float64 {
+	var cost float64 = 0
+	for i := range len(solution) {
+		cost += task.At(solution[i].Start, solution[i].Finish)
+	}
+
+	return cost
+}
 
 // Selects top n species
 func Selection(species []Species) []Species { return nil }

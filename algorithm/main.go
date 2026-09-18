@@ -29,4 +29,5 @@ func main() {
 		fmt.Printf("(%d, %d) ", path[i].Start, path[i].Finish)
 	}
 	fmt.Println()
+	fmt.Println(genetic_algorithm.Cost(path, problem))
 }
