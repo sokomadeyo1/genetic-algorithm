@@ -4,7 +4,6 @@ import (
 	"math"
 	"math/rand"
 	"slices"
-	"sort"
 
 	"gonum.org/v1/gonum/mat"
 )
@@ -101,13 +100,57 @@ func Fitness(solution Species, task *WGraph) float64 {
 
 // Samples k species
 func Selection(task *WGraph, species []Species, remain int) []Species {
-	sort.Slice(
-		species,
-		func(i, j int) bool {
-			return Cost(species[i], task) < Cost(species[j], task)
-		},
-	)
-	return species[:min(len(species), remain)]
+	// edge case of remain >= len(species)
+	if remain >= len(species) {
+		return species
+	}
+
+	var weights []float64
+	for i := range len(species) {
+		w := Fitness(species[i], task)
+		weights = append(weights, w)
+	}
+	dist := distFromWeights(weights)
+
+	// we have to do non-return sampling
+	var remainingInd []int
+	for _ = range remain {
+		roll := sampleIndex(dist)
+		for slices.Contains(remainingInd, roll) {
+			roll = sampleIndex(dist)
+		}
+		remainingInd = append(remainingInd, roll)
+	}
+
+	var remaining []Species
+	for i := range remain {
+		remaining = append(remaining, species[remainingInd[i]])
+	}
+	return remaining
+}
+
+// Converts weights to distribution intervals on [0, 1]
+func distFromWeights(weights []float64) []float64 {
+	for i := 1; i < len(weights); i++ {
+		weights[i] += weights[i-1]
+	}
+	total := weights[len(weights)-1]
+	for i := range len(weights) {
+		weights[i] /= total
+	}
+	return weights
+}
+
+// Samples an integer value from [1, len(dist)] based on distribution
+func sampleIndex(dist []float64) int {
+	p := rand.Float64()
+	var i int
+	for i = 0; i < len(dist) && p < dist[i]; i++ {
+		if p >= dist[i] {
+			break
+		}
+	}
+	return i
 }
 
 // Random swap
