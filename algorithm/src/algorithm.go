@@ -46,22 +46,26 @@ func producer(task *WGraph, acc Path) Species {
 	}
 
 	// recursion base
-	if from == 0 && len(acc) == n {
-		return Species(acc)
+	if len(acc) == n-1 {
+		if task.At(from, 0) == math.Inf(1) {
+			return nil
+		} else {
+			return append(acc, Edge{from, 0})
+		}
 	}
 
 	// cities not to return to
 	var visited []int
 	for i := range len(acc) {
-		visited = append(visited, acc[i].Finish)
+		visited = append(visited, acc[i].Start)
 	}
 
 	var available_ways []int
-	for i := 0; i < n; i++ {
-		// inf denotes way absence
+	for i := range n {
 		if from == i {
 			continue
 		}
+		// inf denotes way absence
 		if task.At(from, i) != math.Inf(1) && !slices.Contains(visited, i) {
 			available_ways = append(available_ways, i)
 		}
