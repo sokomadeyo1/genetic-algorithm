@@ -1,1 +1,2 @@
 - add tests
+- consider another crossover candidates sampling strategy
