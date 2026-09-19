@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"math/rand"
 
-	"github.com/sokomadeyo1/genetic-algorithm/src"
+	genetic_algorithm "github.com/sokomadeyo1/genetic-algorithm/src"
 )
 
 const DEFAULT_SIZE = 10
@@ -24,22 +24,51 @@ func main() {
 	var p_groups = flag.Float64("p", DEFAULT_GROUPS_P, "geometric distribution parameter for crossover groups sizes")
 	var rng_seed = flag.Int("seed", 39, "random seed")
 	flag.Parse()
-	var rng rand.Rand
-	rng.Seed(int64(*rng_seed))
+	rng := rand.New(rand.NewSource(int64(*rng_seed)))
 
 	problem := genetic_algorithm.Create(*n_cities)
 
-	for i := range *n_cities {
-		for j := range *n_cities {
-			fmt.Printf("%g ", problem.At(i, j))
-		}
-		fmt.Println()
+	// Initialize
+	var species []genetic_algorithm.Species
+	for range *max_population {
+		species = append(species, genetic_algorithm.Produce(problem, *rng))
 	}
 
-	path := genetic_algorithm.Produce(problem)
-	for i := range len(path) {
-		fmt.Printf("(%d, %d) ", path[i].Start, path[i].Finish)
+	// Main loop
+	for gen := range *n_iter {
+		// Selection
+		species = genetic_algorithm.Selection(problem, species, *max_population, *rng)
+
+		// Crossover
+		var reproducing []genetic_algorithm.Species
+		for i := range len(species) {
+			if rng.Float64() <= *crossover_rate {
+				reproducing = append(reproducing, species[i])
+			}
+		}
+		groups := genetic_algorithm.RandomSubsets2(reproducing, *p_groups, *rng)
+		for i := range len(groups) {
+			child := genetic_algorithm.Crossover(groups[i], problem, *rng)
+			if child != nil {
+				species = append(species, genetic_algorithm.Crossover(groups[i], problem, *rng))
+			} else {
+				fmt.Println("Nil child")
+			}
+		}
+
+		// Mutation
+		for i := range len(species) {
+			if rng.Float64() <= *mutation_rate {
+				species[i] = genetic_algorithm.Mutation(species[i], *rng)
+			}
+		}
+
+		// Calculate average length
+		var score float64 = 0
+		for i := range len(species) {
+			score += genetic_algorithm.Cost(species[i], problem)
+		}
+		score /= float64(len(species))
+		fmt.Printf("Generation %4d; average path length: %g\n", gen+1, score)
 	}
-	fmt.Println()
-	fmt.Println(genetic_algorithm.Cost(path, problem))
 }
