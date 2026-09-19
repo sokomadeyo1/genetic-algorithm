@@ -24,7 +24,6 @@ func main() {
 	var p_groups = flag.Float64("p", DEFAULT_GROUPS_P, "geometric distribution parameter for crossover groups sizes")
 	var rng_seed = flag.Int("seed", 39, "random seed")
 	flag.Parse()
-	// TODO: use this rng in all stochastic functions
 	var rng rand.Rand
 	rng.Seed(int64(*rng_seed))
 

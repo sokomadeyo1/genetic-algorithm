@@ -15,8 +15,8 @@ func distFromWeights(weights []float64) []float64 {
 }
 
 // Samples an integer value from [1, len(dist)] based on distribution
-func sampleIndex(dist []float64) int {
-	p := rand.Float64()
+func sampleIndex(dist []float64, rng rand.Rand) int {
+	p := rng.Float64()
 	var i int
 	for i = 0; i < len(dist) && p < dist[i]; i++ {
 		if p >= dist[i] {
@@ -27,7 +27,7 @@ func sampleIndex(dist []float64) int {
 }
 
 // Randomly divides a slice into subslices of len >= 2
-func RandomSubsets2[T any](items []T, prob float64) [][]T {
+func RandomSubsets2[T any](items []T, prob float64, rng rand.Rand) [][]T {
 	var result [][]T
 	if len(items) <= 2 {
 		return result
@@ -38,7 +38,7 @@ func RandomSubsets2[T any](items []T, prob float64) [][]T {
 		subset = append(subset, items[i], items[i+1])
 		i++
 		// < len - 3 to ensure no subsets of len 1
-		for i < len(items)-3 && rand.Float64() < prob {
+		for i < len(items)-3 && rng.Float64() < prob {
 			subset = append(subset, items[i+1])
 			i++
 		}

@@ -2,12 +2,13 @@ package genetic_algorithm
 
 import (
 	"math"
+	"math/rand"
 
 	"gonum.org/v1/gonum/mat"
 )
 
 // Unite solutions and generate a new one on a resulting graph
-func Crossover(species []Species, task *WGraph) Species {
+func Crossover(species []Species, task *WGraph, rng rand.Rand) Species {
 	n, _ := task.Dims()
 	data := make([]float64, n*n)
 	for i := range n {
@@ -24,5 +25,5 @@ func Crossover(species []Species, task *WGraph) Species {
 		}
 	}
 	subtask := mat.NewSymDense(n, data)
-	return Produce(subtask)
+	return Produce(subtask, rng)
 }

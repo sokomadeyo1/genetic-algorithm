@@ -2,6 +2,7 @@ package genetic_algorithm
 
 import (
 	"math"
+	"math/rand"
 	"slices"
 )
 
@@ -19,7 +20,7 @@ func Fitness(solution Species, task *WGraph) float64 {
 }
 
 // Samples k species
-func Selection(task *WGraph, species []Species, remain int) []Species {
+func Selection(task *WGraph, species []Species, remain int, rng rand.Rand) []Species {
 	// edge case of remain >= len(species)
 	if remain >= len(species) {
 		return species
@@ -36,10 +37,10 @@ func Selection(task *WGraph, species []Species, remain int) []Species {
 	var remainingInd []int
 	// NOTE: might be more computationally efficient to roll for death instead of survival
 	for range remain {
-		roll := sampleIndex(dist)
+		roll := sampleIndex(dist, rng)
 		// NOTE: might lead to redundant rerolls
 		for slices.Contains(remainingInd, roll) {
-			roll = sampleIndex(dist)
+			roll = sampleIndex(dist, rng)
 		}
 		remainingInd = append(remainingInd, roll)
 	}

@@ -29,12 +29,12 @@ func Create(n int) *WGraph {
 }
 
 // Generate a random solution using pathfinding algorithm
-func Produce(task *WGraph) Species {
-	return producer(task, nil)
+func Produce(task *WGraph, rng rand.Rand) Species {
+	return producer(task, nil, rng)
 }
 
 // Solution must be a loop path of length n
-func producer(task *WGraph, acc Path) Species {
+func producer(task *WGraph, acc Path, rng rand.Rand) Species {
 	n, _ := task.Dims()
 
 	// the current city
@@ -72,8 +72,8 @@ func producer(task *WGraph, acc Path) Species {
 	}
 
 	for len(available_ways) != 0 {
-		next := rand.Intn(len(available_ways))
-		new_path := producer(task, append(acc, Edge{from, available_ways[next]}))
+		next := rng.Intn(len(available_ways))
+		new_path := producer(task, append(acc, Edge{from, available_ways[next]}), rng)
 		if new_path != nil {
 			return new_path
 		}

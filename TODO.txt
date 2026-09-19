@@ -1,2 +1,1 @@
 - add tests
-- use rng param in stochastic functions
