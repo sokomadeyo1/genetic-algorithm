@@ -8,11 +8,20 @@ import (
 )
 
 const DEFAULT_SIZE = 10
-const DEFAULT_ITER = 10
+const DEFAULT_ITER = 100
+const DEFAULT_POPULATION = 10
+const DEFAULT_MUTATION = 0.3
+const DEFAULT_CROSSOVER = 0.3
+const DEFAULT_GROUPS_P = 0.1
 
 func main() {
-	var n_cities = flag.Int("n_cities", DEFAULT_SIZE, "number of cities in the TSP")
-	// var n_iter = flag.Int("n_iter", DEFAULT_ITER, "number of algorithm iterations")
+	var n_cities = flag.Int("cities", DEFAULT_SIZE, "number of cities in the TSP")
+	var n_iter = flag.Int("iter", DEFAULT_ITER, "number of algorithm iterations")
+	var max_population = flag.Int("population", DEFAULT_POPULATION, "the maximum population size after selection")
+	var mutation_rate = flag.Float64("mutation", DEFAULT_MUTATION, "mutation probability")
+	var crossover_rate = flag.Float64("crossover", DEFAULT_MUTATION, "crossover probability (share of reproducing species)")
+	var p_groups = flag.Float64("p", DEFAULT_GROUPS_P, "geometric distribution parameter for crossover groups sizes")
+	var rng_seed = flag.Int("seed", 39, "random seed")
 	flag.Parse()
 
 	problem := genetic_algorithm.Create(*n_cities)
