@@ -114,8 +114,10 @@ func Selection(task *WGraph, species []Species, remain int) []Species {
 
 	// we have to do non-return sampling
 	var remainingInd []int
-	for _ = range remain {
+	// NOTE: might be more computationally efficient to roll for death instead of survival
+	for range remain {
 		roll := sampleIndex(dist)
+		// NOTE: might lead to redundant rerolls
 		for slices.Contains(remainingInd, roll) {
 			roll = sampleIndex(dist)
 		}
