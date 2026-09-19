@@ -14,7 +14,7 @@ func distFromWeights(weights []float64) []float64 {
 	return weights
 }
 
-// Samples an integer value from [1, len(dist)] based on distribution
+// Samples an integer value from [0, len(dist)-1] based on distribution
 func sampleIndex(dist []float64, rng rand.Rand) int {
 	p := rng.Float64()
 	var i int
