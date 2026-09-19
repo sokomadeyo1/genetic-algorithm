@@ -18,10 +18,7 @@ func distFromWeights(weights []float64) []float64 {
 func sampleIndex(dist []float64, rng rand.Rand) int {
 	p := rng.Float64()
 	var i int
-	for i = 0; i < len(dist) && p < dist[i]; i++ {
-		if p >= dist[i] {
-			break
-		}
+	for i = 0; i < len(dist) && p > dist[i]; i++ {
 	}
 	return i
 }
