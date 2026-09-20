@@ -15,6 +15,7 @@ const DEFAULT_POPULATION = 10
 const DEFAULT_MUTATION = 0.3
 const DEFAULT_CROSSOVER = 0.3
 const DEFAULT_GROUPS_P = 0.1
+const DEFAULT_TEMPERATURE = 1
 const PLACEHOLDER = "PLACEHOLDER"
 
 func main() {
@@ -24,6 +25,7 @@ func main() {
 	var mutation_rate = flag.Float64("mutation", DEFAULT_MUTATION, "mutation probability")
 	var crossover_rate = flag.Float64("crossover", DEFAULT_MUTATION, "crossover probability (share of reproducing species)")
 	var p_groups = flag.Float64("p", DEFAULT_GROUPS_P, "geometric distribution parameter for crossover groups sizes")
+	var temperature = flag.Float64("temp", DEFAULT_TEMPERATURE, "softmax temperature")
 	var rng_seed = flag.Int("seed", 39, "random seed")
 	var output_file = flag.String("o", PLACEHOLDER, "output file for saving algorithm run data")
 	flag.Parse()
@@ -42,7 +44,7 @@ func main() {
 	// Main loop
 	for gen := range *n_iter {
 		// Selection
-		reproducing := genetic_algorithm.SelectionPois(problem, species, *crossover_rate, *rng)
+		reproducing := genetic_algorithm.SelectionPois(problem, species, *crossover_rate, *temperature, *rng)
 
 		// Crossover
 		groups := genetic_algorithm.RandomSubsets2(reproducing, *p_groups, *rng)
@@ -59,7 +61,7 @@ func main() {
 		}
 
 		// Natural selection
-		species = genetic_algorithm.Selection(problem, species, *max_population, *rng)
+		species = genetic_algorithm.Selection(problem, species, *max_population, *temperature, *rng)
 
 		// Save data
 		simulation = append(simulation, species)

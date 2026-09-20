@@ -20,19 +20,34 @@ func Fitness(solution Species, task *WGraph) float64 {
 	return math.Pow(Cost(solution, task), -1)
 }
 
+func SoftMax(vals []float64, temperature float64) []float64 {
+	var res []float64
+	var sum float64 = 0
+	for _, val := range vals {
+		softmax := math.Exp(val / temperature)
+		res = append(res, softmax)
+		sum += softmax
+	}
+	for i := range res {
+		res[i] /= sum
+	}
+	return distFromWeights(res)
+}
+
 // Samples k species
-func Selection(task *WGraph, species []Species, remain int, rng rand.Rand) []Species {
+func Selection(
+	task *WGraph, species []Species, remain int, temperature float64, rng rand.Rand,
+) []Species {
 	// edge case of remain >= len(species)
 	if remain >= len(species) {
 		return species
 	}
 
-	var weights []float64
-	for i := range len(species) {
-		w := Fitness(species[i], task)
-		weights = append(weights, w)
+	var costs []float64
+	for _, chromosome := range species {
+		costs = append(costs, -Cost(chromosome, task))
 	}
-	dist := distFromWeights(weights)
+	dist := SoftMax(costs, temperature)
 
 	// we have to do non-return sampling
 	var remainingInd []int
@@ -54,16 +69,17 @@ func Selection(task *WGraph, species []Species, remain int, rng rand.Rand) []Spe
 }
 
 // Samples a Poisson distributed amount of species
-func SelectionPois(task *WGraph, species []Species, selection_rate float64, rng rand.Rand) []Species {
+func SelectionPois(
+	task *WGraph, species []Species, selection_rate float64, temperature float64, rng rand.Rand,
+) []Species {
 	n := len(species)
 	n_samples := Poisson(selection_rate, n, rng)
 
-	var weights []float64
-	for i := range len(species) {
-		w := Fitness(species[i], task)
-		weights = append(weights, w)
+	var costs []float64
+	for _, chromosome := range species {
+		costs = append(costs, -Cost(chromosome, task))
 	}
-	dist := distFromWeights(weights)
+	dist := SoftMax(costs, temperature)
 
 	// we have to do non-return sampling
 	var remainingInd []int
