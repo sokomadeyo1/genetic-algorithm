@@ -29,7 +29,7 @@ func Test_sampleIndex(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			n := len(tt.dist)
 			for range tt.n_samples {
-				sample := sampleIndex(tt.dist, rng)
+				sample := sampleInt(tt.dist, rng)
 				if sample < 0 {
 					t.Errorf("sampleIndex(%d) = %d < 0", n-1, sample)
 					break
@@ -62,7 +62,7 @@ func Test_sampleIndex(t *testing.T) {
 				target = append(target, i)
 			}
 			for range tt.n_samples {
-				sample := sampleIndex(tt.dist, rng)
+				sample := sampleInt(tt.dist, rng)
 				if slices.Contains(target, sample) {
 					target = slices.DeleteFunc(target, func(i int) bool { return i == sample })
 				}

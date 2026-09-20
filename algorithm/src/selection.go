@@ -53,10 +53,10 @@ func Selection(
 	var remainingInd []int
 	// NOTE: might be more computationally efficient to roll for death instead of survival
 	for range remain {
-		roll := sampleIndex(dist, rng)
+		roll := sampleInt(dist, rng)
 		// NOTE: might lead to redundant rerolls
 		for slices.Contains(remainingInd, roll) {
-			roll = sampleIndex(dist, rng)
+			roll = sampleInt(dist, rng)
 		}
 		remainingInd = append(remainingInd, roll)
 	}
@@ -85,10 +85,10 @@ func SelectionPois(
 	var remainingInd []int
 	// NOTE: might be more computationally efficient to roll for death instead of survival
 	for range n_samples {
-		roll := sampleIndex(dist, rng)
+		roll := sampleInt(dist, rng)
 		// NOTE: might lead to redundant rerolls
 		for slices.Contains(remainingInd, roll) {
-			roll = sampleIndex(dist, rng)
+			roll = sampleInt(dist, rng)
 		}
 		remainingInd = append(remainingInd, roll)
 	}

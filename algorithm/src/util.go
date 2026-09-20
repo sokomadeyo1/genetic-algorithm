@@ -4,6 +4,7 @@ import (
 	"math"
 	"math/rand"
 	"os"
+	"slices"
 
 	"gopkg.in/yaml.v3"
 )
@@ -21,11 +22,9 @@ func distFromWeights(weights []float64) []float64 {
 }
 
 // Samples an integer value from [0, len(dist)-1] based on distribution
-func sampleIndex(dist []float64, rng rand.Rand) int {
+func sampleInt(dist []float64, rng rand.Rand) int {
 	p := rng.Float64()
-	var i int
-	for i = 0; i < len(dist) && p > dist[i]; i++ {
-	}
+	i, _ := slices.BinarySearch(dist, p)
 	return i
 }
 
@@ -44,7 +43,7 @@ func Poisson(p float64, n int, rng rand.Rand) int {
 		weights = append(weights, math.Pow(lambda, float64(k))*math.Exp(-lambda)/float64(factorial(k)))
 	}
 	dist := distFromWeights(weights)
-	return sampleIndex(dist, rng)
+	return sampleInt(dist, rng)
 }
 
 // Randomly divides a slice into subslices of len >= 2
