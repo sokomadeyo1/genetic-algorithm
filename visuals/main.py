@@ -81,6 +81,8 @@ def main():
             "mutation_rate",
             "crossover_rate",
             "crossover_group",
+            "median_length",
+            "mean_length",
             "seed",
         ]
     }
