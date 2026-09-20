@@ -3,19 +3,24 @@ import sys
 from math import ceil, cos, pi, sin
 
 import yaml
-from PIL import Image, ImageDraw
+from PIL import Image, ImageDraw, ImageFont
 from tqdm import tqdm
 
 USAGE = f"Usage: {sys.argv[0]} data.yaml output.gif"
-SIZE = (1600, 1600)
-CENTER = (800, 800)
-RADIUS = 600
-STROKE = 2
+SIZE = (1250, 1200)
+CENTER = (600, 600)
+RADIUS = 500
+TEXT_BEGIN = (950, 1150)
+TEXT_Y_DIFF = -20
+FONT = ImageFont.truetype("/usr/share/fonts/noto/NotoSansMono-Regular.ttf", 20)
+STROKE = 3
 TOTAL_DURATION = 5000
 TOTAL_FRAMES = 250
 
 
-def draw_generation(draw: ImageDraw.ImageDraw, gen: list[list[int]], n: int):
+def draw_generation(
+    draw: ImageDraw.ImageDraw, gen: list[list[int]], n: int, param: dict[str][str]
+):
     alpha = [[0 for _ in range(n)] for _ in range(n)]
     for path in gen:
         for i, j in zip(path, path[1:] + [path[0]]):
@@ -25,6 +30,11 @@ def draw_generation(draw: ImageDraw.ImageDraw, gen: list[list[int]], n: int):
         for j in range(n):
             val = int(255 * (1 - alpha[i][j] / len(gen)))
             draw_edge(draw, i, j, n, (val, val, val))
+
+    pos = TEXT_BEGIN
+    for k, v in param.items():
+        draw.text(pos, f"{k}: {v}", fill="black", font=FONT)
+        pos = (pos[0], pos[1] + TEXT_Y_DIFF)
 
 
 def draw_path(draw: ImageDraw.ImageDraw, points: list[int], n: int):
@@ -43,11 +53,11 @@ def draw_edge(draw: ImageDraw.ImageDraw, start: int, finish: int, n: int, color)
     draw.line([p1, p2], fill=color, width=STROKE)
 
 
-def gen_frames(data: list[list[list[int]]], n: int):
+def gen_frames(data: list[list[list[int]]], n: int, param: dict[str][str]):
     for gen in tqdm(data):
         with Image.new("RGB", SIZE, "white") as img:
             draw = ImageDraw.Draw(img)
-            draw_generation(draw, gen, n)
+            draw_generation(draw, gen, n, param)
             yield img
 
 
@@ -61,13 +71,22 @@ def main():
     n = data["city_count"]
     sim = data["simulation"]
     # shorten data for faster gif generation
-    sim = sim[::ceil(len(sim)/TOTAL_FRAMES)]
+    sim = sim[:: ceil(len(sim) / TOTAL_FRAMES)]
 
+    param = {
+        par: data[par]
+        for par in [
+            "city_count",
+            "population",
+            "mutation_rate",
+            "crossover_rate",
+            "crossover_group",
+            "seed",
+        ]
+    }
     duration = int(TOTAL_DURATION / len(sim))
-    frames = gen_frames(sim, n)
-    next(frames).save(
-        sys.argv[2], append_images=frames, duration=duration, loop=0
-    )
+    frames = gen_frames(sim, n, param)
+    next(frames).save(sys.argv[2], append_images=frames, duration=duration, loop=0)
 
 
 if __name__ == "__main__":
