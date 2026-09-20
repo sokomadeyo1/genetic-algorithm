@@ -36,7 +36,7 @@ func factorial(n int) int {
 	return n * factorial(n-1)
 }
 
-// Sample Poisson distribution
+// Sample Poisson distribution value from [0,n-1]
 func Poisson(p float64, n int, rng rand.Rand) int {
 	lambda := p * float64(n)
 	var weights []float64
