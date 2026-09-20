@@ -1,9 +1,10 @@
 #!/usr/bin/env python
 import sys
-from math import cos, pi, sin
+from math import ceil, cos, pi, sin
 
 import yaml
 from PIL import Image, ImageDraw
+from tqdm import tqdm
 
 USAGE = f"Usage: {sys.argv[0]} data.yaml output.gif"
 SIZE = (1600, 1600)
@@ -11,6 +12,7 @@ CENTER = (800, 800)
 RADIUS = 600
 STROKE = 2
 TOTAL_DURATION = 5000
+TOTAL_FRAMES = 250
 
 
 def draw_generation(draw: ImageDraw.ImageDraw, gen: list[list[int]], n: int):
@@ -49,7 +51,10 @@ def main():
         data = yaml.safe_load(f)
     n = data["city_count"]
     frames = []
-    for gen in data["simulation"]:
+    sim = data["simulation"]
+    # shorten data for faster gif generation
+    sim = sim[::ceil(len(sim)/TOTAL_FRAMES)]
+    for gen in tqdm(sim):
         with Image.new("RGB", SIZE, "white") as img:
             draw = ImageDraw.Draw(img)
             draw_generation(draw, gen, n)
