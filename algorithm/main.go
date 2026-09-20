@@ -4,6 +4,7 @@ import (
 	"flag"
 	"fmt"
 	"math/rand"
+	"slices"
 	"time"
 
 	genetic_algorithm "github.com/sokomadeyo1/genetic-algorithm/src"
@@ -61,18 +62,24 @@ func main() {
 		}
 
 		// Natural selection
-		species = genetic_algorithm.Selection(problem, species, *max_population, *temperature, *rng)
+		// species = genetic_algorithm.Selection(problem, species, *max_population, *temperature, *rng)
+		// TODO: fix sampling and use Selection
+		species = species[len(species)-*max_population:]
 
 		// Save data
 		simulation = append(simulation, species)
 
 		// Calculate average length
+		var costs []float64
 		var score float64 = 0
-		for i := range len(species) {
-			score += genetic_algorithm.Cost(species[i], problem)
+		for _, chromosome := range species {
+			costs = append(costs, genetic_algorithm.Cost(chromosome ,problem))
+			score += genetic_algorithm.Cost(chromosome, problem)
 		}
+		slices.Sort(costs)
 		score /= float64(len(species))
-		fmt.Printf("Generation %4d; average path length: %g\n", gen+1, score)
+		fmt.Printf("Generation %4d; path length avg: %g\n", gen+1, score)
+		fmt.Printf("                            med: %g\n", costs[len(costs) / 2])
 	}
 
 	record := genetic_algorithm.Record{
