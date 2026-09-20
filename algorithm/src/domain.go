@@ -3,10 +3,18 @@ package genetic_algorithm
 import "gonum.org/v1/gonum/mat"
 
 type Species = Path
-type Path = []Edge
-type Edge struct {
-	Start int
-	Finish int
-}
+type Path = []int
+
 // Weighted undirected graph
 type WGraph = mat.SymDense
+
+// Record for saving data in yaml
+type Record struct {
+	City_count      int
+	Population      int
+	Mutation_rate   float64
+	Crossover_rate  float64
+	Crossover_group float64
+	Seed            int
+	Simulation      [][]Species
+}

@@ -9,8 +9,9 @@ import (
 // Evaluate path's length/cost
 func Cost(solution Species, task *WGraph) float64 {
 	var cost float64 = 0
-	for i := range len(solution) {
-		cost += task.At(solution[i].Start, solution[i].Finish)
+	n := len(solution)
+	for i := range n {
+		cost += task.At(solution[i], solution[(i+1)%n])
 	}
 	return cost
 }

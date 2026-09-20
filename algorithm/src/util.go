@@ -1,6 +1,11 @@
 package genetic_algorithm
 
-import "math/rand"
+import (
+	"math/rand"
+	"os"
+
+	"gopkg.in/yaml.v3"
+)
 
 // Converts weights to distribution intervals on [0, 1]
 func distFromWeights(weights []float64) []float64 {
@@ -43,4 +48,25 @@ func RandomSubsets2[T any](items []T, prob float64, rng rand.Rand) [][]T {
 	}
 
 	return result
+}
+
+func YamlWrite(r Record, filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	data, err := yaml.Marshal(r)
+	if err != nil {
+		return err
+	}
+	f.Write(data)
+
+	return nil
 }

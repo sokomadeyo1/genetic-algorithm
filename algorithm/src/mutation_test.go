@@ -13,10 +13,10 @@ func Test_swap(t *testing.T) {
 	}{
 		{
 			"good_01",
-			Species{Edge{0, 1}, Edge{1, 2}, Edge{2, 0}},
+			Species{0, 1, 2},
 			1,
 			2,
-			Species{Edge{2, 1}, Edge{1, 0}, Edge{0, 2}},
+			Species{0, 2, 1},
 		},
 	}
 	for _, tt := range tests {

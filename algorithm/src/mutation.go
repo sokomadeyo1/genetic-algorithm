@@ -15,8 +15,6 @@ func Mutation(species Species, rng rand.Rand) Species {
 }
 
 func swap(species Species, i, j int) Species {
-	n := len(species)
-	species[i].Finish, species[j].Finish = species[j].Finish, species[i].Finish
-	species[(i+1)%n].Start, species[(j+1)%n].Start = species[(j+1)%n].Start, species[(i+1)%n].Start
+	species[i], species[j] = species[j], species[i]
 	return species
 }
