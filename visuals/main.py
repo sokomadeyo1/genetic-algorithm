@@ -5,10 +5,12 @@ from math import cos, pi, sin
 import yaml
 from PIL import Image, ImageDraw
 
-USAGE = f"Usage: {sys.argv[0]} data.yaml output.png"
-SIZE = (800, 800)
-CENTER = (400, 400)
-RADIUS = 300
+USAGE = f"Usage: {sys.argv[0]} data.yaml output.gif"
+SIZE = (1600, 1600)
+CENTER = (800, 800)
+RADIUS = 600
+STROKE = 2
+TOTAL_DURATION = 5000
 
 
 def draw_generation(draw: ImageDraw.ImageDraw, gen: list[list[int]], n: int):
@@ -35,7 +37,7 @@ def draw_edge(draw: ImageDraw.ImageDraw, start: int, finish: int, n: int, color)
     d2 = (cos(point2), -sin(point2))
     p1 = (CENTER[0] + RADIUS * d1[0], CENTER[1] + RADIUS * d1[1])
     p2 = (CENTER[0] + RADIUS * d2[0], CENTER[1] + RADIUS * d2[1])
-    draw.line([p1, p2], fill=color, width=1)
+    draw.line([p1, p2], fill=color, width=STROKE)
 
 
 def main():
@@ -46,11 +48,17 @@ def main():
     with open(fi, "r") as f:
         data = yaml.safe_load(f)
     n = data["city_count"]
-    with Image.new("RGBA", SIZE, "white") as img:
-        draw = ImageDraw.Draw(img)
-        gen = data["simulation"][0]
-        draw_generation(draw, gen, n)
-        img.save(sys.argv[2], "PNG")
+    frames = []
+    for gen in data["simulation"]:
+        with Image.new("RGB", SIZE, "white") as img:
+            draw = ImageDraw.Draw(img)
+            draw_generation(draw, gen, n)
+            frames.append(img)
+
+    duration = int(TOTAL_DURATION / len(frames))
+    frames[0].save(
+        sys.argv[2], append_images=frames[1:], duration=duration, loop=0
+    )
 
 
 if __name__ == "__main__":
