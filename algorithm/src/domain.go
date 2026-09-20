@@ -16,5 +16,7 @@ type Record struct {
 	Crossover_rate  float64
 	Crossover_group float64
 	Seed            int
+	Mean_length     float64
+	Median_length   int
 	Simulation      [][]Species
 }

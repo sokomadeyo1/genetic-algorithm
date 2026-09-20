@@ -41,6 +41,8 @@ func main() {
 	}
 
 	var simulation [][]genetic_algorithm.Species
+	var mean float64
+	var median int
 
 	// Main loop
 	for gen := range *n_iter {
@@ -73,13 +75,17 @@ func main() {
 		var costs []float64
 		var score float64 = 0
 		for _, chromosome := range species {
-			costs = append(costs, genetic_algorithm.Cost(chromosome ,problem))
+			costs = append(costs, genetic_algorithm.Cost(chromosome, problem))
 			score += genetic_algorithm.Cost(chromosome, problem)
 		}
 		slices.Sort(costs)
 		score /= float64(len(species))
 		fmt.Printf("Generation %4d; path length avg: %g\n", gen+1, score)
-		fmt.Printf("                            med: %g\n", costs[len(costs) / 2])
+		fmt.Printf("                            med: %g\n", costs[len(costs)/2])
+		if gen == *n_iter-1 {
+			mean = score
+			median = int(costs[len(costs)/2])
+		}
 	}
 
 	record := genetic_algorithm.Record{
@@ -89,6 +95,8 @@ func main() {
 		Crossover_rate:  *crossover_rate,
 		Crossover_group: *p_groups,
 		Seed:            *rng_seed,
+		Mean_length:     mean,
+		Median_length:   median,
 		Simulation:      simulation,
 	}
 	if *output_file == PLACEHOLDER {
