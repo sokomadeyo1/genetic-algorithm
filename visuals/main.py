@@ -28,6 +28,7 @@ def draw_generation(draw: ImageDraw.ImageDraw, gen: list[list[int]], n: int):
 
 
 def draw_path(draw: ImageDraw.ImageDraw, points: list[int], n: int):
+    """Get frames lazily."""
     for p1, p2 in zip(points, points[1:]):
         draw_edge(draw, p1, p2, n)
 
@@ -42,6 +43,14 @@ def draw_edge(draw: ImageDraw.ImageDraw, start: int, finish: int, n: int, color)
     draw.line([p1, p2], fill=color, width=STROKE)
 
 
+def gen_frames(data: list[list[list[int]]], n: int):
+    for gen in tqdm(data):
+        with Image.new("RGB", SIZE, "white") as img:
+            draw = ImageDraw.Draw(img)
+            draw_generation(draw, gen, n)
+            yield img
+
+
 def main():
     if len(sys.argv) < 3:
         print(USAGE)
@@ -50,19 +59,14 @@ def main():
     with open(fi, "r") as f:
         data = yaml.safe_load(f)
     n = data["city_count"]
-    frames = []
     sim = data["simulation"]
     # shorten data for faster gif generation
     sim = sim[::ceil(len(sim)/TOTAL_FRAMES)]
-    for gen in tqdm(sim):
-        with Image.new("RGB", SIZE, "white") as img:
-            draw = ImageDraw.Draw(img)
-            draw_generation(draw, gen, n)
-            frames.append(img)
 
-    duration = int(TOTAL_DURATION / len(frames))
-    frames[0].save(
-        sys.argv[2], append_images=frames[1:], duration=duration, loop=0
+    duration = int(TOTAL_DURATION / len(sim))
+    frames = gen_frames(sim, n)
+    next(frames).save(
+        sys.argv[2], append_images=frames, duration=duration, loop=0
     )
 
 
