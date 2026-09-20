@@ -18,8 +18,8 @@ func Crossover(species []Species, task *WGraph, rng rand.Rand) Species {
 	}
 	for i := range len(species) {
 		for j := range n {
-			k := species[i][j].Start
-			l := species[i][j].Finish
+			k := species[i][j]
+			l := species[i][(j+1)%n]
 			data[k*n+l] = task.At(k, l)
 			data[l*n+k] = task.At(k, l)
 		}

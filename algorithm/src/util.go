@@ -1,6 +1,13 @@
 package genetic_algorithm
 
-import "math/rand"
+import (
+	"math"
+	"math/rand"
+	"os"
+	"slices"
+
+	"gopkg.in/yaml.v3"
+)
 
 // Converts weights to distribution intervals on [0, 1]
 func distFromWeights(weights []float64) []float64 {
@@ -15,12 +22,28 @@ func distFromWeights(weights []float64) []float64 {
 }
 
 // Samples an integer value from [0, len(dist)-1] based on distribution
-func sampleIndex(dist []float64, rng rand.Rand) int {
+func sampleInt(dist []float64, rng rand.Rand) int {
 	p := rng.Float64()
-	var i int
-	for i = 0; i < len(dist) && p > dist[i]; i++ {
-	}
+	i, _ := slices.BinarySearch(dist, p)
 	return i
+}
+
+func factorial(n int) int {
+	if n == 0 {
+		return 1
+	}
+	return n * factorial(n-1)
+}
+
+// Sample Poisson distribution value from [0,n-1]
+func Poisson(p float64, n int, rng rand.Rand) int {
+	lambda := p * float64(n)
+	var weights []float64
+	for k := range n {
+		weights = append(weights, math.Pow(lambda, float64(k))*math.Exp(-lambda)/float64(factorial(k)))
+	}
+	dist := distFromWeights(weights)
+	return sampleInt(dist, rng)
 }
 
 // Randomly divides a slice into subslices of len >= 2
@@ -43,4 +66,25 @@ func RandomSubsets2[T any](items []T, prob float64, rng rand.Rand) [][]T {
 	}
 
 	return result
+}
+
+func YamlWrite(r Record, filename string) error {
+	f, err := os.Create(filename)
+	if err != nil {
+		return err
+	}
+	defer func() {
+		err := f.Close()
+		if err != nil {
+			panic(err)
+		}
+	}()
+
+	data, err := yaml.Marshal(r)
+	if err != nil {
+		return err
+	}
+	f.Write(data)
+
+	return nil
 }
