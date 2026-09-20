@@ -3,7 +3,6 @@ package genetic_algorithm
 import (
 	"math"
 	"math/rand"
-	"slices"
 )
 
 // Evaluate path's length/cost
@@ -34,12 +33,42 @@ func SoftMax(vals []float64, temperature float64) []float64 {
 	return distFromWeights(res)
 }
 
+// Samples k indexes without replacement
+func SampleIndexes(cdf []float64, n_samples int, rng rand.Rand) []int {
+	n := len(cdf)
+	var result []int
+	for range n_samples {
+		roll := sampleInt(cdf, rng)
+
+		// remove sample
+		// TODO: optimize
+		var weight float64
+		if roll == 0 {
+			weight = cdf[roll]
+		} else {
+			// BUG: index out of range [4] with length 4, see test_SampleIndexes
+			weight = cdf[roll] - cdf[roll-1]
+		}
+		for i := roll; i < n; i++ {
+			cdf[i] -= weight
+		}
+		norm := cdf[n-1]
+		for i := range cdf {
+			cdf[i] /= norm
+		}
+
+		result = append(result, roll)
+	}
+
+	return result
+}
+
 // Samples k species
 func Selection(
-	task *WGraph, species []Species, remain int, temperature float64, rng rand.Rand,
+	task *WGraph, species []Species, n_samples int, temperature float64, rng rand.Rand,
 ) []Species {
 	// edge case of remain >= len(species)
-	if remain >= len(species) {
+	if n_samples >= len(species) {
 		return species
 	}
 
@@ -48,24 +77,12 @@ func Selection(
 		costs = append(costs, -Cost(chromosome, task))
 	}
 	dist := SoftMax(costs, temperature)
-
-	// we have to do non-return sampling
-	var remainingInd []int
-	// NOTE: might be more computationally efficient to roll for death instead of survival
-	for range remain {
-		roll := sampleInt(dist, rng)
-		// NOTE: might lead to redundant rerolls
-		for slices.Contains(remainingInd, roll) {
-			roll = sampleInt(dist, rng)
-		}
-		remainingInd = append(remainingInd, roll)
+	indxs := SampleIndexes(dist, n_samples, rng)
+	var result []Species
+	for _, i := range indxs {
+		result = append(result, species[i])
 	}
-
-	var remaining []Species
-	for i := range remain {
-		remaining = append(remaining, species[remainingInd[i]])
-	}
-	return remaining
+	return result
 }
 
 // Samples a Poisson distributed amount of species
@@ -74,28 +91,5 @@ func SelectionPois(
 ) []Species {
 	n := len(species)
 	n_samples := Poisson(selection_rate, n, rng)
-
-	var costs []float64
-	for _, chromosome := range species {
-		costs = append(costs, -Cost(chromosome, task))
-	}
-	dist := SoftMax(costs, temperature)
-
-	// we have to do non-return sampling
-	var remainingInd []int
-	// NOTE: might be more computationally efficient to roll for death instead of survival
-	for range n_samples {
-		roll := sampleInt(dist, rng)
-		// NOTE: might lead to redundant rerolls
-		for slices.Contains(remainingInd, roll) {
-			roll = sampleInt(dist, rng)
-		}
-		remainingInd = append(remainingInd, roll)
-	}
-
-	var remaining []Species
-	for _, i := range remainingInd {
-		remaining = append(remaining, species[i])
-	}
-	return remaining
+	return Selection(task, species, n_samples, temperature, rng)
 }

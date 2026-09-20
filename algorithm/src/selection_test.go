@@ -1,8 +1,10 @@
 package genetic_algorithm_test
 
 import (
-	"github.com/sokomadeyo1/genetic-algorithm/src"
+	"math/rand"
 	"testing"
+
+	"github.com/sokomadeyo1/genetic-algorithm/src"
 )
 
 func TestSoftMax(t *testing.T) {
@@ -42,8 +44,65 @@ func TestSoftMax(t *testing.T) {
 				}
 			}
 			sum := got[len(got)-1]
-			if sum  != 1 {
+			if sum != 1 {
 				t.Fatalf("probability does not add up to 1: %g", sum)
+			}
+		})
+	}
+}
+
+func TestSampleIndexes(t *testing.T) {
+	rng := *rand.New(rand.NewSource(39))
+	amount_tests := []struct{
+		name string // description of this test case
+		// Named input parameters for target function.
+		cdf         []float64
+		n_samples   int
+		n_tests     int
+	}{
+		{
+			"amount_01",
+			[]float64{0.2, 0.5, 0.7, 1.0},
+			3,
+			40,
+		},
+	}
+	for _, tt := range amount_tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for range tt.n_tests {
+				samples := genetic_algorithm.SampleIndexes(tt.cdf, tt.n_samples, rng)
+				if len(samples) != tt.n_samples {
+					t.Errorf("Invalid amount of samples: %d != %d", len(samples), tt.n_samples)
+				}
+			}
+		})
+	}
+
+	repeat_tests := []struct {
+		name string // description of this test case
+		// Named input parameters for target function.
+		cdf         []float64
+		n_samples   int
+		n_tests     int
+	}{
+		{
+			"repeat_01",
+			[]float64{0.2, 0.5, 0.7, 1.0},
+			3,
+			40,
+		},
+	}
+	for _, tt := range repeat_tests {
+		t.Run(tt.name, func(t *testing.T) {
+			for range tt.n_tests {
+				samples := genetic_algorithm.SampleIndexes(tt.cdf, tt.n_samples, rng)
+				for i := range samples {
+					for j := i + 1; j < tt.n_samples; j++ {
+						if samples[i] == samples[j] {
+							t.Errorf("Two similar elements found")
+						}
+					}
+				}
 			}
 		})
 	}

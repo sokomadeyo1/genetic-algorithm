@@ -6,7 +6,7 @@ import (
 	"testing"
 )
 
-func Test_sampleIndex(t *testing.T) {
+func Test_sampleInt(t *testing.T) {
 	tests := []struct {
 		name string // description of this test case
 		// Named input parameters for target function.
@@ -16,7 +16,7 @@ func Test_sampleIndex(t *testing.T) {
 		{
 			"domain_01",
 			[]float64{0.2, 0.4, 0.6, 0.8, 1.0},
-			100,
+			1000,
 		},
 		{
 			"domain_edge_01",
