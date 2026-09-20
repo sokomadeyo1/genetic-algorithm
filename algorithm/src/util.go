@@ -1,6 +1,7 @@
 package genetic_algorithm
 
 import (
+	"math"
 	"math/rand"
 	"os"
 
@@ -26,6 +27,24 @@ func sampleIndex(dist []float64, rng rand.Rand) int {
 	for i = 0; i < len(dist) && p > dist[i]; i++ {
 	}
 	return i
+}
+
+func factorial(n int) int {
+	if n == 0 {
+		return 1
+	}
+	return n * factorial(n-1)
+}
+
+// Sample Poisson distribution
+func Poisson(p float64, n int, rng rand.Rand) int {
+	lambda := p * float64(n)
+	var weights []float64
+	for k := range n {
+		weights = append(weights, math.Pow(lambda, float64(k))*math.Exp(-lambda)/float64(factorial(k)))
+	}
+	dist := distFromWeights(weights)
+	return sampleIndex(dist, rng)
 }
 
 // Randomly divides a slice into subslices of len >= 2

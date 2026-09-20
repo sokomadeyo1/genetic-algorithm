@@ -42,15 +42,9 @@ func main() {
 	// Main loop
 	for gen := range *n_iter {
 		// Selection
-		species = genetic_algorithm.Selection(problem, species, *max_population, *rng)
+		reproducing := genetic_algorithm.SelectionPois(problem, species, *crossover_rate, *rng)
 
 		// Crossover
-		var reproducing []genetic_algorithm.Species
-		for i := range len(species) {
-			if rng.Float64() <= *crossover_rate {
-				reproducing = append(reproducing, species[i])
-			}
-		}
 		groups := genetic_algorithm.RandomSubsets2(reproducing, *p_groups, *rng)
 		for i := range len(groups) {
 			child := genetic_algorithm.Crossover(groups[i], problem, *rng)
@@ -63,6 +57,9 @@ func main() {
 				species[i] = genetic_algorithm.Mutation(species[i], *rng)
 			}
 		}
+
+		// Natural selection
+		species = genetic_algorithm.Selection(problem, species, *max_population, *rng)
 
 		// Save data
 		simulation = append(simulation, species)

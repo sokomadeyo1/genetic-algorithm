@@ -52,3 +52,34 @@ func Selection(task *WGraph, species []Species, remain int, rng rand.Rand) []Spe
 	}
 	return remaining
 }
+
+// Samples a Poisson distributed amount of species
+func SelectionPois(task *WGraph, species []Species, selection_rate float64, rng rand.Rand) []Species {
+	n := len(species)
+	n_samples := Poisson(selection_rate, n, rng)
+
+	var weights []float64
+	for i := range len(species) {
+		w := Fitness(species[i], task)
+		weights = append(weights, w)
+	}
+	dist := distFromWeights(weights)
+
+	// we have to do non-return sampling
+	var remainingInd []int
+	// NOTE: might be more computationally efficient to roll for death instead of survival
+	for range n_samples {
+		roll := sampleIndex(dist, rng)
+		// NOTE: might lead to redundant rerolls
+		for slices.Contains(remainingInd, roll) {
+			roll = sampleIndex(dist, rng)
+		}
+		remainingInd = append(remainingInd, roll)
+	}
+
+	var remaining []Species
+	for _, i := range remainingInd {
+		remaining = append(remaining, species[i])
+	}
+	return remaining
+}
